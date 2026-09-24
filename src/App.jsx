@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import "./style.css";
-import  "./Intro.css";
+import  Intro from "./Intro.css";
 const topics = [
   {
     name: "Arrays",
