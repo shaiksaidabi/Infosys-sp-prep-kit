@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "./style.css";
 import  Intro from "./Intro";
+import Auth from "./Auth";
+import { supabase } from "./supabaseClient";
 const topics = [
   {
     name: "Arrays",
@@ -658,62 +660,163 @@ const resources = {
   }
 };
 function App() {
-  const [showIntro, setShowIntro] = useState(true);
+  const [user, setUser] = useState(null);
+const [authLoading, setAuthLoading] = useState(true);
+
+useEffect(() => {
+  supabase.auth.getSession().then(({ data }) => {
+    setUser(data.session?.user ?? null);
+    setAuthLoading(false);
+  });
+
+  const {
+    data: { subscription },
+  } = supabase.auth.onAuthStateChange((_event, session) => {
+    setUser(session?.user ?? null);
+  });
+
+  return () => subscription.unsubscribe();
+}, []);
+  const [showIntro, setShowIntro] = useState(false);
   const [section, setSection] = useState("Dashboard");
 
-  const [problemStatus, setProblemStatus] = useState(
-    () => JSON.parse(localStorage.getItem("problemStatus") || "{}")
-  );
-
-  const [notes, setNotes] = useState(
-    () => JSON.parse(localStorage.getItem("problemNotes") || "{}")
-  );
-
-  const [completedDays, setCompletedDays] = useState(
-    () => JSON.parse(localStorage.getItem("completedDays") || "[0]")
-  );
-
-  const [studySeconds, setStudySeconds] = useState(
-  () => Number(localStorage.getItem("studySeconds") || 3600)
-);
+  const [problemStatus, setProblemStatus] = useState({});
+  const [notes, setNotes] = useState({});
+  const [completedDays, setCompletedDays] = useState([]);
+  const [studySeconds, setStudySeconds] = useState(3600);
   const [timerRunning, setTimerRunning] = useState(false);
+  const [progressLoading, setProgressLoading] = useState(true);
 
+  const progressLoaded = useRef(false);
+  const studySecondsRef = useRef(3600);
 
-
+  useEffect(() => {
+    studySecondsRef.current = studySeconds;
+  }, [studySeconds]);
 
   /* =========================
-     LOCAL STORAGE
+     SUPABASE USER PROGRESS
   ========================= */
 
   useEffect(() => {
-    localStorage.setItem(
-      "problemStatus",
-      JSON.stringify(problemStatus)
-    );
-  }, [problemStatus]);
+    let cancelled = false;
 
+    const loadProgress = async () => {
+      if (!user) {
+        progressLoaded.current = false;
+        setProgressLoading(false);
+        return;
+      }
+
+      setProgressLoading(true);
+      progressLoaded.current = false;
+
+      // Reset to the default state while the selected user's data loads.
+      setProblemStatus({});
+      setNotes({});
+      setCompletedDays([]);
+      setStudySeconds(3600);
+      studySecondsRef.current = 3600;
+
+      const { data, error } = await supabase
+        .from("user_progress")
+        .select("problem_status, problem_notes, completed_days, study_seconds")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (cancelled) return;
+
+      if (error) {
+        console.error("Failed to load user progress:", error);
+        setProgressLoading(false);
+        return;
+      }
+
+      if (!data) {
+        const defaults = {
+          user_id: user.id,
+          problem_status: {},
+          problem_notes: {},
+          completed_days: [],
+          study_seconds: 3600,
+        };
+
+        const { error: insertError } = await supabase
+          .from("user_progress")
+          .upsert(defaults, { onConflict: "user_id" });
+
+        if (insertError) {
+          console.error("Failed to create user progress:", insertError);
+        }
+      } else {
+        setProblemStatus(data.problem_status || {});
+        setNotes(data.problem_notes || {});
+        setCompletedDays(
+          Array.isArray(data.completed_days) && data.completed_days.length
+            ? data.completed_days
+            : []
+        );
+        setStudySeconds(Number(data.study_seconds ?? 3600));
+        studySecondsRef.current = Number(data.study_seconds ?? 3600);
+      }
+
+      progressLoaded.current = true;
+      setProgressLoading(false);
+    };
+
+    loadProgress();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  const saveProgress = async (overrideStudySeconds = null) => {
+    if (!user || !progressLoaded.current) return;
+
+    const payload = {
+      user_id: user.id,
+      problem_status: problemStatus,
+      problem_notes: notes,
+      completed_days: completedDays,
+      study_seconds:
+        overrideStudySeconds === null
+          ? studySecondsRef.current
+          : overrideStudySeconds,
+      updated_at: new Date().toISOString(),
+    };
+
+    const { error } = await supabase
+      .from("user_progress")
+      .upsert(payload, { onConflict: "user_id" });
+
+    if (error) {
+      console.error("Failed to save user progress:", error);
+    }
+  };
+
+  // Save normal progress shortly after a change.
   useEffect(() => {
-    localStorage.setItem(
-      "problemNotes",
-      JSON.stringify(notes)
-    );
-  }, [notes]);
+    if (!user || !progressLoaded.current) return;
 
+    const timeout = setTimeout(() => {
+      saveProgress();
+    }, 700);
+
+    return () => clearTimeout(timeout);
+  }, [problemStatus, notes, completedDays, user]);
+
+  // Save timer progress every 15 seconds while the timer is running.
   useEffect(() => {
-    localStorage.setItem(
-      "completedDays",
-      JSON.stringify(completedDays)
-    );
-  }, [completedDays]);
+    if (!user || !progressLoaded.current || !timerRunning) return;
 
-  useEffect(() => {
-    localStorage.setItem(
-      "studySeconds",
-      studySeconds
-    );
-  }, [studySeconds]);
+    const interval = setInterval(() => {
+      saveProgress(studySecondsRef.current);
+    }, 15000);
 
-  
+    return () => clearInterval(interval);
+  }, [user, timerRunning]);
+
 
   /* =========================
      STUDY TIMER
@@ -790,16 +893,51 @@ const daysCompleted = completedDays.length;
     );
   };
 
-  
+  const handleLogout = async () => {
+    await saveProgress(studySecondsRef.current);
+    await supabase.auth.signOut();
+    setUser(null);
+  };
+
   /* =========================
      UI
   ========================= */
+if (authLoading) {
+  return (
+    <div className="auth-screen">
+      <div className="auth-card">
+        <h1>Loading...</h1>
+      </div>
+    </div>
+  );
+}
+
+const handleLogin = (loggedInUser) => {
+  setUser(loggedInUser);
+  setSection("Dashboard");
+  setShowIntro(true);
+};
+
+if (!user) {
+  return <Auth onLogin={handleLogin} />;
+}
+if (progressLoading) {
+  return (
+    <div className="auth-screen">
+      <div className="auth-card">
+        <div className="auth-logo">INFOSYS</div>
+        <h1>Loading your progress...</h1>
+        <p className="auth-subtitle">Preparing your personal dashboard</p>
+      </div>
+    </div>
+  );
+}
 
   return (
  <>
     {showIntro && (
       <Intro
-        day={completedDays.length + 1}
+        day={Math.max(1, completedDays.length)}
         onFinish={() => setShowIntro(false)}
       />
     )}
@@ -856,8 +994,10 @@ const daysCompleted = completedDays.length;
         ))}
 
         <div className="sidebar-footer">
-
-        
+          <button className="logout-button" onClick={handleLogout}>
+            <span className="nav-icon">↪</span>
+            <span>Logout</span>
+          </button>
         </div>
 
       </aside>
