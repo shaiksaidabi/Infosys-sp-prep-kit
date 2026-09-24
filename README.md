@@ -1,16 +1,50 @@
-# React + Vite
+# 🚀 Infosys SP / DSE Preparation Kit
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A simple and interactive preparation dashboard for **Infosys Specialist Programmer (SP)** and **Digital Specialist Engineer (DSE)** coding preparation.
 
-Currently, two official plugins are available:
+## ✨ Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- 📊 Preparation Dashboard
+- 📅 30-Day DSA Roadmap
+- 📚 DSA Topics with subtopics
+- 💻 Coding Problems
+- ⏱️ Study Timer
+- 📈 Progress Tracking
+- 🧠 Infosys-focused Coding Questions
+- 💾 LocalStorage-based progress saving
+- 🌌 Modern Aurora Glass UI
+- 📱 Responsive React interface
 
-## React Compiler
+## 🛠️ Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React.js
+- Vite
+- JavaScript
+- HTML
+- CSS
+- LocalStorage
 
-## Expanding the ESLint configuration
+## 🎯 Preparation Areas
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- Arrays
+- Strings
+- Hashing
+- Linked Lists
+- Stack & Queue
+- Binary Search
+- Trees
+- Graphs
+- Greedy
+- Dynamic Programming
+- Backtracking
+- Bit Manipulation
+- Advanced Data Structures
+
+## ▶️ Run Locally
+
+```bash
+npm install
+npm run dev
+## 🎯 Purpose
+
+This project helps learners organize and track their preparation for Infosys SP / DSE coding assessments through a structured 30-day preparation plan.
