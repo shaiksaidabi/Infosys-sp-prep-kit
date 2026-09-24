@@ -1,0 +1,300 @@
+.intro-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(167, 139, 250, 0.35),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at 80% 75%,
+      rgba(45, 212, 191, 0.25),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(244, 114, 182, 0.16),
+      transparent 45%
+    ),
+    linear-gradient(
+      135deg,
+      #17152f,
+      #29204d,
+      #123c3c
+    );
+
+  animation: introExit 1s ease 7s forwards;
+}
+
+.intro-content {
+  position: relative;
+  z-index: 5;
+
+  width: min(900px, 90vw);
+
+  text-align: center;
+
+  animation: contentAppear 1.2s ease;
+}
+
+.intro-welcome {
+  min-height: 130px;
+
+  font-size: clamp(28px, 5vw, 62px);
+
+  line-height: 1.25;
+
+  font-weight: 800;
+
+  letter-spacing: 3px;
+
+  color: #ffffff;
+
+  text-shadow:
+    0 0 20px rgba(255,255,255,0.15),
+    0 0 50px rgba(180,140,255,0.25);
+}
+
+.intro-welcome span:not(.cursor) {
+  background:
+    linear-gradient(
+      90deg,
+      #c4b5fd,
+      #f9a8d4,
+      #5eead4
+    );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.cursor {
+  display: inline-block;
+
+  margin-left: 4px;
+
+  color: #ffffff;
+
+  animation: blink 0.7s infinite;
+}
+
+.intro-day {
+  margin-top: 30px;
+
+  display: inline-block;
+
+  padding: 12px 30px;
+
+  border-radius: 999px;
+
+  color: #ffffff;
+
+  font-size: 18px;
+
+  font-weight: 800;
+
+  letter-spacing: 4px;
+
+  background: rgba(255,255,255,0.1);
+
+  border: 1px solid rgba(255,255,255,0.25);
+
+  backdrop-filter: blur(15px);
+
+  box-shadow:
+    0 0 30px rgba(180,140,255,0.25);
+
+  animation: dayReveal 1s ease;
+}
+
+.intro-glow {
+  position: absolute;
+
+  width: 500px;
+  height: 500px;
+
+  border-radius: 50%;
+
+  filter: blur(100px);
+
+  opacity: 0.35;
+
+  pointer-events: none;
+}
+
+.glow-one {
+  left: -150px;
+  top: -150px;
+
+  background: #9b6cff;
+
+  animation: floatOne 6s ease-in-out infinite alternate;
+}
+
+.glow-two {
+  right: -150px;
+  bottom: -150px;
+
+  background: #2dd4bf;
+
+  animation: floatTwo 7s ease-in-out infinite alternate;
+}
+
+@keyframes blink {
+  0%, 45% {
+    opacity: 1;
+  }
+
+  50%, 100% {
+    opacity: 0;
+  }
+}
+
+@keyframes contentAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes dayReveal {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.8);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes floatOne {
+  from {
+    transform: translate(0, 0);
+  }
+
+  to {
+    transform: translate(180px, 120px);
+  }
+}
+
+@keyframes floatTwo {
+  from {
+    transform: translate(0, 0);
+  }
+
+  to {
+    transform: translate(-160px, -100px);
+  }
+}
+
+@keyframes introExit {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@media (max-width: 600px) {
+  .intro-welcome {
+    font-size: 27px;
+    letter-spacing: 1px;
+  }
+
+  .intro-day {
+    font-size: 15px;
+  }
+}/* ===== TOPBAR TITLE ===== */
+
+.topbar h1 {
+  margin: 0 !important;
+  font-size: 44px !important;
+  font-weight: 900 !important;
+  line-height: 1.1;
+  letter-spacing: 0.5px;
+  color: #ffffff !important;
+}
+
+.topbar p {
+  margin: 8px 0 0 !important;
+  font-size: 15px;
+  color: #b7b8d0;
+}
+
+/* INFOSYS LABEL ABOVE DASHBOARD */
+.topbar .eyebrow {
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+  color: #60a5fa;
+}
+
+@media (max-width: 700px) {
+  .topbar h1 {
+    font-size: 32px !important;
+  }
+}
+/* =====================================================
+   FINAL TOPBAR — INFOSYS TITLE
+===================================================== */
+
+.topbar .eyebrow {
+  display: block !important;
+  margin: 0 0 8px 0 !important;
+
+  font-size: 32px !important;
+  line-height: 1.1 !important;
+  font-weight: 900 !important;
+  letter-spacing: 1.5px !important;
+
+  color: #ffffff !important;
+
+  text-shadow:
+    0 0 20px rgba(167, 139, 250, 0.45);
+}
+
+.topbar h1 {
+  margin: 0 !important;
+
+  font-size: 24px !important;
+  line-height: 1.2 !important;
+  font-weight: 700 !important;
+
+  color: #ddd6fe !important;
+}
+
+.topbar p {
+  margin: 7px 0 0 0 !important;
+
+  font-size: 14px !important;
+  color: #a5a8c4 !important;
+}
+
+
+@media (max-width: 700px) {
+
+  .topbar .eyebrow {
+    font-size: 24px !important;
+  }
+
+  .topbar h1 {
+    font-size: 20px !important;
+  }
+
+}
