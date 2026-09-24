@@ -4,7 +4,7 @@ import "./intro.css";
 export default function Intro({ day = 1, onFinish }) {
   const [text, setText] = useState("");
 
-  const message = "WELCOME TO INFOSYS PREPARATION KIT";
+  const message = "WELCOME 30 DAYS CHALLENGE OF INFOSYS PREPARATION KIT";
 
   useEffect(() => {
     let index = 0;
